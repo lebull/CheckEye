@@ -18,48 +18,55 @@ public class Board : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //Spawn boardSquares.
-        GameObject blackSquarePrefab = Resources.Load<GameObject>("Prefabs/BlackSquare");
-        GameObject whiteSquarePrefab = Resources.Load<GameObject>("Prefabs/WhiteSquare");
 
-        squareGrid = new GameObject[GRIDSIZE, GRIDSIZE];
+		spawnBoardSquares();
 
-        //Spawn our grid
-        float separation = squarewidth;
-        Vector3 squareScale = new Vector3(
-            separation,
-            blackSquarePrefab.transform.localScale.y,
-            separation
-        );
-
-        //1 to 8
-        for (int vertical_index = 0; vertical_index < GRIDSIZE; vertical_index++)
-        {
-            //a to h
-            for (int horizontal_index = 0; horizontal_index < GRIDSIZE; horizontal_index++)
-            {
-                //squareToSpawn is black or white
-                GameObject squareToSpawn;
-                if ((vertical_index + horizontal_index) % 2 == 0)
-                    squareToSpawn = blackSquarePrefab;
-                else
-                    squareToSpawn = whiteSquarePrefab;
-
-                //This should be local to this.transform
-                Vector3 spawnPosition = new Vector3(
-                    (horizontal_index - (GRIDSIZE / 2)) * separation + separation / 2,
-                    0,
-                    (vertical_index - (GRIDSIZE / 2)) * separation + separation / 2
-                );
-
-                GameObject newSquare = (GameObject)Instantiate(squareToSpawn, spawnPosition, transform.rotation);
-                squareGrid[horizontal_index, vertical_index] = newSquare;
-                newSquare.transform.localScale = squareScale;
-                newSquare.transform.parent = transform;
-                newSquare.GetComponent<BoardSquare>().setBoardIndex(horizontal_index, vertical_index);
-            }
-        }
+        
     }
+
+	private void spawnBoardSquares(){
+		//Spawn boardSquares.
+		GameObject blackSquarePrefab = Resources.Load<GameObject>("Prefabs/BlackSquare");
+		GameObject whiteSquarePrefab = Resources.Load<GameObject>("Prefabs/WhiteSquare");
+		
+		squareGrid = new GameObject[GRIDSIZE, GRIDSIZE];
+		
+		//Spawn our grid
+		float separation = squarewidth;
+		Vector3 squareScale = new Vector3(
+			separation,
+			blackSquarePrefab.transform.localScale.y,
+			separation
+			);
+		
+		//1 to 8
+		for (int vertical_index = 0; vertical_index < GRIDSIZE; vertical_index++)
+		{
+			//a to h
+			for (int horizontal_index = 0; horizontal_index < GRIDSIZE; horizontal_index++)
+			{
+				//squareToSpawn is black or white
+				GameObject squareToSpawn;
+				if ((vertical_index + horizontal_index) % 2 == 0)
+					squareToSpawn = blackSquarePrefab;
+				else
+					squareToSpawn = whiteSquarePrefab;
+				
+				//This should be local to this.transform
+				Vector3 spawnPosition = new Vector3(
+					(horizontal_index - (GRIDSIZE / 2)) * separation + separation / 2,
+					0,
+					(vertical_index - (GRIDSIZE / 2)) * separation + separation / 2
+					);
+				
+				GameObject newSquare = (GameObject)Instantiate(squareToSpawn, spawnPosition, transform.rotation);
+				squareGrid[horizontal_index, vertical_index] = newSquare;
+				newSquare.transform.localScale = squareScale;
+				newSquare.transform.parent = transform;
+				newSquare.GetComponent<BoardSquare>().setBoardIndex(horizontal_index, vertical_index);
+			}
+		}
+	}
 
     /// <summary>
     /// Spawn a piece at this square.  The gamePiecePrefab MUST have a BoardPiece script attatched.
