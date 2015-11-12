@@ -1,0 +1,29 @@
+Part I
+	Highlight square going through the square itself
+		Let the square highlight other cubes
+		1 cursor per square
+		Screw static batching for now I guess.  We can set the color by copying the material
+
+	Assign pieces to players
+	Player makes move action
+	Get valid moves for one piece
+	Get all valid moves for a player
+
+	The game
+		Moves, somehow
+		Start via ready button?
+		For now, AI player that picks random available moves while it can make a move.
+		On game complete, do something silly
+		Need to show messages from the game manager
+
+
+	https://www.reddit.com/r/GearVR/comments/3ez6uw/gazetyping_keyboards_for_unity_xpost_roculus/
+	https://www.mobizen.com/?locale=en
+
+Part II
+	Multiplayer :D
+	Connect scene
+	Photon?  
+
+Housekeeping:
+	Refactor name squareCursor to squareHighlighter
