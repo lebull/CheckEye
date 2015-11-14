@@ -1,13 +1,22 @@
+https://realtimeboard.com/app/board/102967944/
+https://trello.com/b/lIXGJBpe/checkeye
+
+Open Issues:
+	Right now, the spawning is derped.  I think the BoardPieces are spawning BEFORE boardSquares (no good :c);
+	Further testing has confirmed that the boardSQUARES are being instantiated AFTER the game tries to set up the pieces.
+		Add a todo if you try to move a gamepiece to nil.
+
 Part I
-	Highlight square going through the square itself
-		Let the square highlight other cubes
-		1 cursor per square
-		Screw static batching for now I guess.  We can set the color by copying the material
+	DONE
+		Highlight square going through the square itself
+			Let the square highlight other cubes
+			1 cursor per square
+			Screw static batching for now I guess.  We can set the color by copying the material
 
 	Assign pieces to players
 	Player makes move action
-	Get valid moves for one piece
-	Get all valid moves for a player
+	80% Get valid moves for one piece
+	80% Get all valid moves for a player
 
 	The game
 		Moves, somehow
@@ -24,6 +33,3 @@ Part II
 	Multiplayer :D
 	Connect scene
 	Photon?  
-
-Housekeeping:
-	Refactor name squareCursor to squareHighlighter

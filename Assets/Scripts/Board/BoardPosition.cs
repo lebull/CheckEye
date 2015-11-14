@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace CheckEye.Utility {
+namespace CheckEye.Board {
     public class BoardPosition {
 
         public int vertical;
@@ -22,12 +22,12 @@ namespace CheckEye.Utility {
             }
         }
 
+
+      
+
         public static BoardPosition operator +(BoardPosition first, BoardPosition second)
         {
-
-
             return new BoardPosition(first.horizontal + second.horizontal, first.vertical + second.vertical);
-
         }
     }
 }

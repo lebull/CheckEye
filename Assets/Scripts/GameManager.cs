@@ -2,97 +2,69 @@
 using System.Collections;
 using System.Collections.Generic;
 
-using CheckEye.Utility;
+using CheckEye.Board;
 
 
 public class GameManager : MonoBehaviour {
 
-    public delegate void onGameStartDelegate();
-    public static event onGameStartDelegate onGameStart;
     public Board board;
 
-	private GameRules gameRules;
-
-    public enum Player
-    {
-        playerOne,
-        playerTwo
-    }
+    private GameRules _gameRules;
+	public GameRules gameRules { get { return _gameRules; } }
 
     // Use this for initialization
     void Start () {
 
+        LocalPlayer.playerID = GameRules.Player.player_one;
+
+        board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
+
 		//This can be replaced by another game.
-		this.gameRules = new GameRules();
+		_gameRules = new GameRules();
+        gameRules.setUpBoard(board);
 
-
-        //board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
-        //onGameStart += spawnCheckers;
-		Board board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
-         GameObject playerOneGamePiece = (GameObject)Resources.Load("Prefabs/PlayerOneGamePiece");
-        GameObject playerTwoGamePiece = (GameObject)Resources.Load("Prefabs/PlayerTwoGamePiece");
-
-        List<GameObject> redPieces = new List<GameObject>();
-        List<GameObject> bluePieces = new List<GameObject>();
-
-
-        for (int horizontal_index = 0; horizontal_index < Board.GRIDSIZE; horizontal_index++)
-        {
-            for (int rel_vertical_index = 0; rel_vertical_index < 3; rel_vertical_index++)
-            {
-                int playerOneVerticalIndex = rel_vertical_index;
-                int playerTwoVerticalIndex = Board.GRIDSIZE - 1 - rel_vertical_index;
-
-                new BoardPosition(horizontal_index, playerOneVerticalIndex);
-
-                BoardPosition playerOneNewPiecePos = new BoardPosition(horizontal_index, playerOneVerticalIndex);
-                BoardPosition playerTwoNewPiecePos = new BoardPosition(horizontal_index, playerTwoVerticalIndex);
-
-                board.spawnGamePiecePrefabAtPosition(playerOneNewPiecePos, playerOneGamePiece);
-                board.spawnGamePiecePrefabAtPosition(playerTwoNewPiecePos, playerTwoGamePiece);
-            }
-        }
-
-        restartGame();
     }
 
     /// <summary>
-    /// Restarts the game of checkers
+    /// LocalPlayer calls this when they make a valid move.  Will move the piece on the board.
+    /// It should change turns and do shit when it's not your turn or its not a valid move.
     /// </summary>
-    public void restartGame()
+    /// <param name="piece"></param>
+    /// <param name="destination"></param>
+    public void playerChoseValidSquare(BoardPiece piece, BoardPosition destination)
     {
-		//this.gameRules.setUpBoard(board);
-		Debug.Log ("Board Set Up");
-        onGameStart();
+        //LocalPlayer.playerID;
+        //Todo: Execute Move
+        //BoardMove move = ..
+        piece.move(board.getSquare(destination));
     }
 
     /// <summary>
-    /// Returns a list of valid boardPositions that a piece can move to.
+    /// Execute a board move, moving the piece, removing targeted pieces, and transforming the gamepiece.
     /// </summary>
-    /// <param name="gamePiece"></param>
-    /// <returns></returns>
-    public List<BoardPosition> getValidMoves(BoardPiece gamePiece)
+    /// <param name="move"></param>
+    public void executeMove(BoardMove move)
     {
+        //LocalPlayer.playerID;
+        //Todo: Execute Move
+        //BoardMove move = ..
+        move.movingPiece.move(board.getSquare(move.destination));
 
-        BoardPosition piecePosition = gamePiece.boardPosition;
-
-        //TODO: Here's where we left off in refactoring the boardPosition variable.  We need to be able to see relative spots. Should be an eays struct method.
-        List<BoardPosition> returnList = new List<BoardPosition>();
-
-        if (gamePiece.owner == Player.playerOne)
+        //Byebye
+        foreach(BoardPiece byebyePiece in move.destroyedPieces)
         {
-            returnList.Add(piecePosition + new BoardPosition(-1, 1));
-            returnList.Add(piecePosition + new BoardPosition(1, 1));
-        }
-        if (gamePiece.owner == Player.playerTwo)
-        {
-            returnList.Add(piecePosition + new BoardPosition(-1, -1));
-            returnList.Add(piecePosition + new BoardPosition(1, -1));
+            Destroy(byebyePiece.gameObject);
         }
 
-        //Remove invalid moves
-        returnList.RemoveAll(move => !move.inBoard || board.isPositionIsOccupied(move));
-
-        return returnList;
     }
+
+
+
+    //Todo: LocalPlayerMakes Move
+    //  Let other playr know it's their turn.
+
+
+
+
+
 }

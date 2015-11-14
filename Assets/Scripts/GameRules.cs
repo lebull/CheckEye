@@ -2,51 +2,107 @@
 using System.Collections;
 using System.Collections.Generic;
 
-using CheckEye.Utility;
+using CheckEye.Board;
 
 public class GameRules {
 
-	/// <summary>
-	/// Returns a list of valid boardPositions that a piece can move to.
-	/// </summary>
-	/// <param name="gamePiece"></param>
-	/// <returns></returns>
-	public List<BoardPosition> getValidMoves(Board board, BoardPiece gamePiece)
-	{
+    public enum Player
+    {
+        player_one = 1,
+        player_two = 2
+    }
 
-		BoardPosition piecePosition = gamePiece.boardPosition;
+    private delegate void addJumpMoveDelegate(int i, int j);
+
+    /// <summary>
+    /// Returns a list of valid boardPositions that a piece can move to.
+    /// </summary>
+    /// <param name="boardPiece"></param>
+    /// <returns></returns>
+    public List<BoardMove> getValidMoveForPiece(Board board, BoardPiece boardPiece)
+	{
+        try
+        {
+            BoardPosition piecePosition = boardPiece.boardPosition;
+            List<BoardMove> validMoves = new List<BoardMove>();
+
+
+            //This delegate will add any possible jump moves to validMoves
+            //Had issues with syntax while trying to make this an anon function.
+            addJumpMoveDelegate addJumpMove = delegate (int near_horizontal, int near_vertical)
+            {
+
+                BoardSquare closeSquare = board.getSquare(piecePosition + new BoardPosition(near_horizontal, near_vertical));
+                BoardSquare farSquare = board.getSquare(piecePosition + new BoardPosition(near_horizontal * 2, near_vertical * 2));
+
+                if (closeSquare && farSquare &&
+                    closeSquare.occupied &&
+                    closeSquare.gamePiece.owner != boardPiece.owner &&
+                    !farSquare.occupied
+                    )
+                {
+                    BoardPiece destroyedPiece = closeSquare.gamePiece;
+                    validMoves.Add( new BoardMove(
+                                        boardPiece,
+                                        farSquare.boardPosition,
+                                        new List<BoardPiece>() { destroyedPiece }
+                    ));
+                }
+            };
+               
+
+            if (boardPiece.owner == Player.player_one || boardPiece.kinged)
+            {
+                addJumpMove(-1, 1);
+                addJumpMove(1, 1);
+            }
+
+            if (boardPiece.owner == Player.player_two || boardPiece.kinged)
+            {
+                addJumpMove(-1, -1);
+                addJumpMove(1, -1);
+            }
+
+
+
+            List<BoardPosition> validDestinations = new List<BoardPosition>();
+            if (boardPiece.owner == Player.player_one)
+		    {
+                validDestinations.Add(piecePosition + new BoardPosition(-1, 1));
+			    validDestinations.Add(piecePosition + new BoardPosition(1, 1));
+		    }
+		    if (boardPiece.owner == Player.player_two)
+		    {
+			    validDestinations.Add(piecePosition + new BoardPosition(-1, -1));
+			    validDestinations.Add(piecePosition + new BoardPosition(1, -1));
+		    }
 		
-		//TODO: Here's where we left off in refactoring the boardPosition variable.  We need to be able to see relative spots. Should be an eays struct method.
-		List<BoardPosition> returnList = new List<BoardPosition>();
-		
-		if (gamePiece.owner == GameManager.Player.playerOne)
-		{
-			returnList.Add(piecePosition + new BoardPosition(-1, 1));
-			returnList.Add(piecePosition + new BoardPosition(1, 1));
-		}
-		if (gamePiece.owner == GameManager.Player.playerTwo)
-		{
-			returnList.Add(piecePosition + new BoardPosition(-1, -1));
-			returnList.Add(piecePosition + new BoardPosition(1, -1));
-		}
-		
-		//Remove invalid moves
-		returnList.RemoveAll(move => !move.inBoard || board.isPositionIsOccupied(move));
-		
-		return returnList;
-	}
+		    //Remove invalid moves
+		    validDestinations.RemoveAll(move => !move.inBoard || board.isPositionIsOccupied(move));
+
+            foreach(BoardPosition moveDestination in validDestinations)
+            {
+                validMoves.Add(new BoardMove(boardPiece, moveDestination));
+            }
+            
+
+            return validMoves;
+        }
+        catch (System.NullReferenceException)
+        {
+            return new List<BoardMove>();
+        }
+    }
 
 	
-
+    /// <summary>
+    /// Callback to spawn the board.
+    /// </summary>
+    /// <param name="board"></param>
 	public void setUpBoard(Board board){
 
 		GameObject playerOneGamePiece = (GameObject)Resources.Load("Prefabs/PlayerOneGamePiece");
 		GameObject playerTwoGamePiece = (GameObject)Resources.Load("Prefabs/PlayerTwoGamePiece");
-
-		//List<GameObject> redPieces = new List<GameObject>();
-		//List<GameObject> bluePieces = new List<GameObject>();
-
-		Debug.Log (board);
 		
 		for (int horizontal_index = 0; horizontal_index < Board.GRIDSIZE; horizontal_index++)
 		{
@@ -57,12 +113,14 @@ public class GameRules {
 				
 				new BoardPosition(horizontal_index, playerOneVerticalIndex);
 				
-				BoardPosition playerOneNewPiecePos = new BoardPosition(horizontal_index, playerOneVerticalIndex);
-				BoardPosition playerTwoNewPiecePos = new BoardPosition(horizontal_index, playerTwoVerticalIndex);
-				
-				board.spawnGamePiecePrefabAtPosition(playerOneNewPiecePos, playerOneGamePiece);
-				board.spawnGamePiecePrefabAtPosition(playerTwoNewPiecePos, playerTwoGamePiece);
-			}
+				BoardSquare playerOneSquare = board.getSquare(new BoardPosition(horizontal_index, playerOneVerticalIndex));
+                BoardSquare playerTwoSquare = board.getSquare(new BoardPosition(horizontal_index, playerTwoVerticalIndex));
+
+                //board.spawnGamePiece(playerOneNewPiecePos, playerOneGamePiece, Player.player_one);
+                //board.spawnGamePiece(playerTwoNewPiecePos, playerTwoGamePiece, Player.player_two);
+                BoardPiece.CreateBoardPiece(board, playerOneGamePiece, playerOneSquare, Player.player_one);
+                BoardPiece.CreateBoardPiece(board, playerTwoGamePiece, playerTwoSquare, Player.player_two);
+            }
 		}
 	}
 

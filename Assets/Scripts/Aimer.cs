@@ -10,7 +10,6 @@ public class Aimer : MonoBehaviour {
 	void Start () {
         BoardSquareLayer = LayerMask.NameToLayer("BoardSquare");
         boardSquareLayerMask = ~BoardSquareLayer;
-
     }
 	
 	// Update is called once per frame

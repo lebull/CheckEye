@@ -2,14 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
-using CheckEye.Utility;
+using CheckEye.Board;
 
 public class LocalPlayer : MonoBehaviour
 {
+    public static GameRules.Player playerID;
 
-    //private BoardPosition heldGamePiecePosition;
-    private BoardPiece heldGamePiece;
-    private bool holdingGamePiece;
+    //private BoardPosition heldBoardPiecePosition;
+    private BoardPiece heldBoardPiece;
 
     private GameManager gameManager;
     private Board board;
@@ -20,49 +20,64 @@ public class LocalPlayer : MonoBehaviour
         board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
     }
 
-    public void playerClickedSquare(BoardSquare boardSquare)
+    public void playerClickedSquare(BoardSquare clickedSquare)
     {
-        //Will be a state machine between piece held and no piece held.
-        //For now, lets just highlight valid moves.
-        Debug.Log(boardSquare.boardPosition);
 
-        if (!holdingGamePiece)
+        //Highlight valid moves
+        if (!heldBoardPiece)
         {
-            heldGamePiece = boardSquare.gamePiece;
-            List<BoardPosition> validMoves = gameManager.getValidMoves(heldGamePiece);
+            heldBoardPiece = clickedSquare.gamePiece;
+            List<BoardMove> validMoves = gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece);
 
             if (validMoves.Count > 0)
             {
-                holdingGamePiece = true;
-                //heldGamePiecePosition = boardSquare.positionOnBoard;
-                heldGamePiece = boardSquare.gamePiece;
+                //heldBoardPiecePosition = boardSquare.positionOnBoard;
+                heldBoardPiece = clickedSquare.gamePiece;
 
                 //Show valid moves
-                foreach (BoardPosition validMove in validMoves)
+                foreach (BoardMove validMove in validMoves)
                 {
-                    board.getSquare(validMove).addHighlight("GAMEMANAGER_VALID_MOVE", new Color(0, 0.5f, 0));
+                    board.getSquare(validMove.destination).addHighlight("GAMEMANAGER_VALID_MOVE", new Color(0, 0.5f, 0));
                 }
             }
             else
             {
-                heldGamePiece = null;
+                heldBoardPiece = null;
                 //TODO: Play some annoying sound
             }
         }
         else //Player is currently holding a piece and is trying to make a move.
         {
             //Cancle the move
-            if (boardSquare.boardPosition == heldGamePiece.boardPosition)
+            if (clickedSquare.boardPosition == heldBoardPiece.boardPosition)
             {
-                holdingGamePiece = false;
                 gameManager.board.clearHighlights("GAMEMANAGER_VALID_MOVE");
+                heldBoardPiece = null;
             }
-            //WOW!  TODO: This one is a doozer
-            if (gameManager.getValidMoves(heldGamePiece).Contains(boardSquare.boardPosition))
+
+
+            bool validMove = false;
+
+            // Check if the clicked square is a valid move.
+            // Because I'm too lazy to figure out how to filter this with a predicate.
+            // Probably a good thing overall, anyway.
+            foreach(BoardMove targetMove in gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece))
             {
-                holdingGamePiece = false;
+                if ((clickedSquare.boardPosition.vertical == targetMove.destination.vertical)
+                    && (clickedSquare.boardPosition.horizontal == targetMove.destination.horizontal))
+                {
+                    validMove = true;
+                    gameManager.executeMove(targetMove);
+                    break;
+                }
+            }
+
+            if(validMove)
+            {
                 gameManager.board.clearHighlights("GAMEMANAGER_VALID_MOVE");
                 Debug.Log("Player made a move! Time to call the game manager.");
+                //gameManager.playerChoseValidSquare(heldBoardPiece, clickedSquare.boardPosition);
+                heldBoardPiece = null;
             }
             else
             {
@@ -70,11 +85,4 @@ public class LocalPlayer : MonoBehaviour
             }
         }
     }
-
-    //Events we can add:
-    //Player Selects Move
-    //Player Defers
-
-    //Events we need from others
-    // Do something when its my turn
 }

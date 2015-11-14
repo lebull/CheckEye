@@ -2,137 +2,133 @@
 using System.Collections;
 using System.Collections.Generic;
 
-using CheckEye.Utility;
+namespace CheckEye.Board {
 
 
-public class BoardSquare : MonoBehaviour {
+    public class BoardSquare : MonoBehaviour {
 
 
-    public bool occupied { get { return gamePiece != null; } }
+        public BoardPosition boardPosition{ get { return _boardPosition; }}
+        private BoardPosition _boardPosition;
 
-    public Dictionary<string, Color> activeHighlights;
-    public const float highlightAlpha = 0.75f;
-    public BoardPosition boardPosition {
-        get { return _boardPosition; }
-    }
-    private BoardPosition _boardPosition;
+        public bool occupied { get { return gamePiece != null; } }
 
-    private BoardPiece _gamePiece;
-    public BoardPiece gamePiece { get { return _gamePiece; } }
-
-    private Aimer aimer;
-    private bool focused;
-
-    private GameManager gameManager;
-    private GameObject squareHighlighter;
+        public BoardPiece gamePiece;
 
 
-    private const string CURSOR_HIGHLIGHT_KEY = "SELF_CURSOR";
 
-    // Use this for initialization
-    void Start () {
+        //Highlighting
+        private Aimer aimer;
+        private bool focused;
+        private GameObject squareHighlighter;
+        public Dictionary<string, Color> activeHighlights;
+        public const float highlightAlpha = 0.35f;
 
-        focused = false;
 
-        aimer = GameObject.FindGameObjectWithTag("Aimer").GetComponent<Aimer>();
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        private const string CURSOR_HIGHLIGHT_KEY = "SELF_CURSOR";
 
-        activeHighlights = new Dictionary<string, Color>();
+        // Use this for initialization
+        void Start () {
 
-        squareHighlighter = Instantiate((GameObject)Resources.Load("Prefabs/squareCursor"));
-        squareHighlighter.transform.position = transform.position + new Vector3(0, 0.01f, 0);
-        squareHighlighter.transform.localScale = transform.lossyScale;
-        squareHighlighter.transform.parent = transform;
-        squareHighlighter.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update() {
-        if ((!focused) && (aimer.getAimSquare() != null) && (aimer.getAimSquare() == gameObject))
-        {
-            focused = true;
-            addHighlight(CURSOR_HIGHLIGHT_KEY, new Color(0.86f, 0.87f, 0.22f));
-        }
-
-        if (focused && (aimer.getAimSquare() != gameObject))
-        {
             focused = false;
-            removeHighlight(CURSOR_HIGHLIGHT_KEY);
-        }
 
-        if (focused && Input.GetMouseButtonDown(0))
-        {
-            GameObject.FindGameObjectWithTag("LocalPlayer").GetComponent<LocalPlayer>().playerClickedSquare(this);
-        }
-    }
+            aimer = GameObject.FindGameObjectWithTag("Aimer").GetComponent<Aimer>();
+            activeHighlights = new Dictionary<string, Color>();
 
-    /// <summary>
-    /// Adds a highlight to this square.  Highlight output color is the average of all active highlights.
-    /// </summary>
-    /// <param name="highlightKey"></param>
-    /// <param name="highlightColor"></param>
-    public void addHighlight(string highlightKey, Color highlightColor)
-    {
-        Debug.Log(this);
-
-        activeHighlights[highlightKey] = highlightColor;
-        resetHighlightColor();
-    }
-
-    /// <summary>
-    /// Remove this square's highlight with a particular key
-    /// </summary>
-    /// <param name="highlightKey"></param>
-    public void removeHighlight(string highlightKey)
-    {
-        activeHighlights.Remove(highlightKey);
-        resetHighlightColor();
-    }
-
-    void resetHighlightColor()
-    {
-        if(activeHighlights.Count > 0) {
-            squareHighlighter.SetActive(true);
-            //Find the average color of the highlights.
-            Color averageColor = Color.black;
-            foreach (Color color in activeHighlights.Values)
-            {
-                averageColor += color;
-            }
-            averageColor /= activeHighlights.Count;
-            averageColor.a = highlightAlpha;
-            squareHighlighter.GetComponent<Renderer>().material.color = averageColor;
-        }
-        else
-        {
+            squareHighlighter = Instantiate((GameObject)Resources.Load("Prefabs/squareCursor"));
+            squareHighlighter.transform.position = transform.position + new Vector3(0, 0.01f, 0);
+            squareHighlighter.transform.localScale = transform.lossyScale;
+            squareHighlighter.transform.parent = transform;
             squareHighlighter.SetActive(false);
         }
 
-    }
+        // Update is called once per frame
+        void Update() {
+            if ((!focused) && (aimer.getAimSquare() != null) && (aimer.getAimSquare() == gameObject))
+            {
+                focused = true;
+                addHighlight(CURSOR_HIGHLIGHT_KEY, new Color(0.86f, 0.87f, 0.22f));
+            }
 
-    /// <summary>
-    /// DEPRICATE THIS POS NOW.  Use setBoardPosition plz.
-    /// </summary>
-    /// <param name="horizontal_index"></param>
-    /// <param name="vertical_index"></param>
-    public void setBoardIndex(int horizontal_index, int vertical_index)
-    {
-        _boardPosition = new BoardPosition(horizontal_index, vertical_index);
-    }
+            if (focused && (aimer.getAimSquare() != gameObject))
+            {
+                focused = false;
+                removeHighlight(CURSOR_HIGHLIGHT_KEY);
+            }
 
-    //TODO: This should move the piece if it already has a nonequivilant boardPosition
-    public void setBoardPosition(BoardPosition pos)
-    {
-        _boardPosition = pos;
-    }
+            if (focused && Input.GetMouseButtonDown(0))
+            {
+                GameObject.FindGameObjectWithTag("LocalPlayer").GetComponent<LocalPlayer>().playerClickedSquare(this);
+            }
+        }
 
-    /// <summary>
-    /// Adds a gamePiece to this board.
-    /// </summary>
-    /// <param name="gamePiece"></param>
-    public void addGamePiece(BoardPiece gamePiece)
-    {
-        _gamePiece = gamePiece;
-        gamePiece.boardSquare = this;
+        /// <summary>
+        /// Adds a highlight to this square.  Highlight output color is the average of all active highlights.
+        /// </summary>
+        /// <param name="highlightKey"></param>
+        /// <param name="highlightColor"></param>
+        public void addHighlight(string highlightKey, Color highlightColor)
+        {
+            activeHighlights[highlightKey] = highlightColor;
+            resetHighlightColor();
+        }
+
+        /// <summary>
+        /// Remove this square's highlight with a particular key
+        /// </summary>
+        /// <param name="highlightKey"></param>
+        public void removeHighlight(string highlightKey)
+        {
+            activeHighlights.Remove(highlightKey);
+            resetHighlightColor();
+        }
+
+        void resetHighlightColor()
+        {
+            if(activeHighlights.Count > 0) {
+                squareHighlighter.SetActive(true);
+                //Find the average color of the highlights.
+                Color averageColor = Color.black;
+                foreach (Color color in activeHighlights.Values)
+                {
+                    averageColor += color;
+                }
+                averageColor /= activeHighlights.Count;
+                averageColor.a = highlightAlpha;
+                squareHighlighter.GetComponent<Renderer>().material.color = averageColor;
+            }
+            else
+            {
+                squareHighlighter.SetActive(false);
+            }
+
+        }
+
+        /// <summary>
+        /// DEPRICATE THIS POS NOW.  Use setBoardPosition plz.
+        /// </summary>
+        /// <param name="horizontal_index"></param>
+        /// <param name="vertical_index"></param>
+        public void setBoardIndex(int horizontal_index, int vertical_index)
+        {
+            _boardPosition = new BoardPosition(horizontal_index, vertical_index);
+        }
+
+        //TODO: This should move the piece if it already has a nonequivilant boardPosition
+        public void setBoardPosition(BoardPosition pos)
+        {
+            _boardPosition = pos;
+        }
+
+
+        /// <summary>
+        /// Adds a gamePiece to this board.
+        /// </summary>
+        /// <param name="gamePiece"></param>
+        public void addGamePiece(BoardPiece gamePiece)
+        {
+            //_gamePiece = gamePiece;
+            gamePiece.boardSquare = this;
+        }
     }
 }
