@@ -3,22 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 
 using CheckEye.Board;
+using System;
 
-public class LocalPlayer : MonoBehaviour
+public class RealPlayer : GamePlayer
 {
-    public static GameRules.Player playerID;
-
-    //private BoardPosition heldBoardPiecePosition;
+    [SerializeField] private Aimer aimer;
     private BoardPiece heldBoardPiece;
 
-    private GameManager gameManager;
-    private Board board;
-
-    void Start()
+    void Update()
     {
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
+        aimer.enabled = (gameManager.currentTurnPlayer == this);
     }
+
+    public override void beginTurn(List<BoardMove> validMoves)
+    {
+        Debug.Log(string.Format("Player's turn began. {0} possible moves.", validMoves.Count));
+    }
+
+    //TODO: If gamemanager.turn = me, enable aimer.  Else, disable aimer.
 
     public void playerClickedSquare(BoardSquare clickedSquare)
     {
@@ -67,7 +69,7 @@ public class LocalPlayer : MonoBehaviour
                     && (clickedSquare.boardPosition.horizontal == targetMove.destination.horizontal))
                 {
                     validMove = true;
-                    gameManager.executeMove(targetMove);
+                    playerPickedMove(targetMove);
                     break;
                 }
             }

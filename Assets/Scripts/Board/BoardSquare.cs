@@ -15,11 +15,11 @@ namespace CheckEye.Board {
 
         public BoardPiece gamePiece;
 
-
-
         //Highlighting
+
+        public bool focused;
+
         private Aimer aimer;
-        private bool focused;
         private GameObject squareHighlighter;
         public Dictionary<string, Color> activeHighlights;
         public const float highlightAlpha = 0.35f;
@@ -32,7 +32,6 @@ namespace CheckEye.Board {
 
             focused = false;
 
-            aimer = GameObject.FindGameObjectWithTag("Aimer").GetComponent<Aimer>();
             activeHighlights = new Dictionary<string, Color>();
 
             squareHighlighter = Instantiate((GameObject)Resources.Load("Prefabs/squareCursor"));
@@ -40,26 +39,6 @@ namespace CheckEye.Board {
             squareHighlighter.transform.localScale = transform.lossyScale;
             squareHighlighter.transform.parent = transform;
             squareHighlighter.SetActive(false);
-        }
-
-        // Update is called once per frame
-        void Update() {
-            if ((!focused) && (aimer.getAimSquare() != null) && (aimer.getAimSquare() == gameObject))
-            {
-                focused = true;
-                addHighlight(CURSOR_HIGHLIGHT_KEY, new Color(0.86f, 0.87f, 0.22f));
-            }
-
-            if (focused && (aimer.getAimSquare() != gameObject))
-            {
-                focused = false;
-                removeHighlight(CURSOR_HIGHLIGHT_KEY);
-            }
-
-            if (focused && Input.GetMouseButtonDown(0))
-            {
-                GameObject.FindGameObjectWithTag("LocalPlayer").GetComponent<LocalPlayer>().playerClickedSquare(this);
-            }
         }
 
         /// <summary>
@@ -105,19 +84,30 @@ namespace CheckEye.Board {
         }
 
         /// <summary>
-        /// DEPRICATE THIS POS NOW.  Use setBoardPosition plz.
+        /// Sets the boardsquare 'focused' highlight.
         /// </summary>
-        /// <param name="horizontal_index"></param>
-        /// <param name="vertical_index"></param>
-        public void setBoardIndex(int horizontal_index, int vertical_index)
+        /// <param name="focused_in">True = on</param>
+        public void setFocused(bool focused_in)
         {
-            _boardPosition = new BoardPosition(horizontal_index, vertical_index);
+            focused = focused_in;
+
+            if (focused)
+            {
+                addHighlight(CURSOR_HIGHLIGHT_KEY, new Color(0.86f, 0.87f, 0.22f));
+            }
+            if (!focused)
+            {
+                removeHighlight(CURSOR_HIGHLIGHT_KEY);
+            }
         }
+
 
         //TODO: This should move the piece if it already has a nonequivilant boardPosition
         public void setBoardPosition(BoardPosition pos)
         {
             _boardPosition = pos;
+            string newName = string.Format("BoardSquare ({0}, {1})", pos.horizontal, pos.vertical);
+            transform.name = newName;
         }
 
 
@@ -127,7 +117,6 @@ namespace CheckEye.Board {
         /// <param name="gamePiece"></param>
         public void addGamePiece(BoardPiece gamePiece)
         {
-            //_gamePiece = gamePiece;
             gamePiece.boardSquare = this;
         }
     }

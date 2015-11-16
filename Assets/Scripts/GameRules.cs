@@ -94,6 +94,21 @@ public class GameRules {
         }
     }
 
+    public List<BoardMove> getValidMoves(Board board)
+    {
+        List<BoardMove> returnList = new List<BoardMove>();
+        foreach(BoardPiece piece in board.allPieces())
+        {
+            foreach(BoardMove validMove in getValidMoveForPiece(board, piece))
+            {
+                returnList.Add(validMove);
+            }
+            
+        }
+
+        return returnList;
+    }
+
 	
     /// <summary>
     /// Callback to spawn the board.
@@ -116,8 +131,6 @@ public class GameRules {
 				BoardSquare playerOneSquare = board.getSquare(new BoardPosition(horizontal_index, playerOneVerticalIndex));
                 BoardSquare playerTwoSquare = board.getSquare(new BoardPosition(horizontal_index, playerTwoVerticalIndex));
 
-                //board.spawnGamePiece(playerOneNewPiecePos, playerOneGamePiece, Player.player_one);
-                //board.spawnGamePiece(playerTwoNewPiecePos, playerTwoGamePiece, Player.player_two);
                 BoardPiece.CreateBoardPiece(board, playerOneGamePiece, playerOneSquare, Player.player_one);
                 BoardPiece.CreateBoardPiece(board, playerTwoGamePiece, playerTwoSquare, Player.player_two);
             }

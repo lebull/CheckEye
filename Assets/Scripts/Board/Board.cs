@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace CheckEye.Board {
 
@@ -56,9 +57,10 @@ namespace CheckEye.Board {
 				
 				    GameObject newSquare = (GameObject)Instantiate(newSquarePrefab, spawnPosition, transform.rotation);
 				    squareGrid[horizontal_index, vertical_index] = newSquare;
+                    BoardPosition newBoardPosition = new BoardPosition(horizontal_index, vertical_index);
 				    newSquare.transform.localScale = squareScale;
 				    newSquare.transform.parent = transform;
-				    newSquare.GetComponent<BoardSquare>().setBoardIndex(horizontal_index, vertical_index);
+				    newSquare.GetComponent<BoardSquare>().setBoardPosition(newBoardPosition);
 			    }
 		    }
 	    }
@@ -105,6 +107,25 @@ namespace CheckEye.Board {
                 return null;
             }
             return squareGrid[pos.horizontal, pos.vertical].GetComponent<BoardSquare>();
+        }
+
+        public List<BoardPiece> allPieces()
+        {
+            List<BoardPiece> returnList = new List<BoardPiece>();
+            for (int horz = 0; horz < GRIDSIZE; horz++)
+            { 
+                for (int vert = 0; vert < GRIDSIZE; vert++)
+                {
+                    BoardPosition boardPosition = new BoardPosition(horz, vert);
+                    if (getSquare(boardPosition).occupied)
+                    {
+                        returnList.Add(getSquare(boardPosition).gamePiece);
+                    }
+                    
+                }
+            }
+
+            return returnList;
         }
     }
 
