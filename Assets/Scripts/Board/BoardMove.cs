@@ -33,12 +33,5 @@ namespace CheckEye.Board {
                 this.destroyedPieces = destroyedPieces;
             }
         }
-
-        /*
-        public BoardMove(BoardSquare source, BoardSquare destination)
-        {
-            //this.source = source;
-            //this.destination = destination;
-        }*/
-	}
+    }
 }

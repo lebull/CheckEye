@@ -119,5 +119,14 @@ namespace CheckEye.Board {
         {
             gamePiece.boardSquare = this;
         }
+
+        /// <summary>
+        /// Removes all highlights, including the selected highlight.
+        /// </summary>
+        public void clearAllHighlights()
+        {
+            activeHighlights.Clear();
+            resetHighlightColor();
+        }
     }
 }

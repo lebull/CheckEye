@@ -38,7 +38,7 @@ namespace CheckEye.Board {
 		    float separation = squarewidth;
 		    Vector3 squareScale = new Vector3(
 			    separation,
-                newSquarePrefab.transform.localScale.y,
+                newSquarePrefab.transform.localScale.y * transform.localScale.y,
 			    separation
 			    );
 		
@@ -55,7 +55,7 @@ namespace CheckEye.Board {
 					    (vertical_index - (GRIDSIZE / 2)) * separation + separation / 2
 					    );
 				
-				    GameObject newSquare = (GameObject)Instantiate(newSquarePrefab, spawnPosition, transform.rotation);
+				    GameObject newSquare = (GameObject)Instantiate(newSquarePrefab, transform.position + spawnPosition, transform.rotation);
 				    squareGrid[horizontal_index, vertical_index] = newSquare;
                     BoardPosition newBoardPosition = new BoardPosition(horizontal_index, vertical_index);
 				    newSquare.transform.localScale = squareScale;
@@ -127,6 +127,30 @@ namespace CheckEye.Board {
 
             return returnList;
         }
-    }
 
+        /// <summary>
+        /// Clears all highlights of every square.
+        /// </summary>
+        public void clearAllHighlights()
+        {
+            foreach (GameObject boardSquare in squareGrid)
+            {
+                boardSquare.GetComponent<BoardSquare>().clearAllHighlights();
+            }
+        }
+
+        /// <summary>
+        /// Clear the board.
+        /// </summary>
+        public void wipe()
+        {
+            foreach (GameObject boardSquare in squareGrid)
+            {
+                if(boardSquare.GetComponent<BoardSquare>().gamePiece != null)
+                {
+                    DestroyImmediate(boardSquare.GetComponent<BoardSquare>().gamePiece.gameObject);
+                }
+            }
+        }
+    }
 }

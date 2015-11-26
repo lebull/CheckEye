@@ -6,8 +6,6 @@ using CheckEye.Board;
 
 public abstract class GamePlayer : MonoBehaviour
 {
-    public static GameRules.Player playerID;
-
     //If we ever have multiple gameManagers, I guess we could make setters.
     //Actually, hell no.  Make prefabs.  Serialize OP
     [SerializeField] protected GameManager gameManager;

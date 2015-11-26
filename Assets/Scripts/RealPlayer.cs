@@ -7,7 +7,7 @@ using System;
 
 public class RealPlayer : GamePlayer
 {
-    [SerializeField] private Aimer aimer;
+    [SerializeField] private Aimer aimer;  //Ignore, we're assigning from the editor.  TODO: Is there a pragma for this warning?
     private BoardPiece heldBoardPiece;
 
     void Update()
@@ -28,8 +28,14 @@ public class RealPlayer : GamePlayer
         //Highlight valid moves
         if (!heldBoardPiece)
         {
+            //If we clicked an empty square, forget it.
+            if(clickedSquare.gamePiece == null)
+            {
+                return;
+            }
+
             heldBoardPiece = clickedSquare.gamePiece;
-            List<BoardMove> validMoves = gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece);
+            List<BoardMove> validMoves = gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece, this);
 
             if (validMoves.Count > 0)
             {
@@ -55,15 +61,18 @@ public class RealPlayer : GamePlayer
             {
                 gameManager.board.clearHighlights("GAMEMANAGER_VALID_MOVE");
                 heldBoardPiece = null;
+                return;
             }
 
 
             bool validMove = false;
 
+            //TODO: Issues here!
+
             // Check if the clicked square is a valid move.
             // Because I'm too lazy to figure out how to filter this with a predicate.
             // Probably a good thing overall, anyway.
-            foreach(BoardMove targetMove in gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece))
+            foreach(BoardMove targetMove in gameManager.gameRules.getValidMoveForPiece(board, heldBoardPiece, this))
             {
                 if ((clickedSquare.boardPosition.vertical == targetMove.destination.vertical)
                     && (clickedSquare.boardPosition.horizontal == targetMove.destination.horizontal))
@@ -76,7 +85,7 @@ public class RealPlayer : GamePlayer
 
             if(validMove)
             {
-                gameManager.board.clearHighlights("GAMEMANAGER_VALID_MOVE");
+                board.clearAllHighlights();
                 Debug.Log("Player made a move! Time to call the game manager.");
                 //gameManager.playerChoseValidSquare(heldBoardPiece, clickedSquare.boardPosition);
                 heldBoardPiece = null;

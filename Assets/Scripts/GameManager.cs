@@ -39,27 +39,15 @@ public class GameManager : MonoBehaviour {
 
 		//This can be replaced by another game.
 		_gameRules = new GameRules();
-        gameRules.setUpBoard(board);
+        gameRules.setUpBoard(board, players);
 
 
 
-    }
-
-
-
-    /// <summary>
-    /// LocalPlayer calls this when they make a valid move.  Will move the piece on the board.
-    /// It should change turns and do shit when it's not your turn or its not a valid move.
-    /// </summary>
-    /// <param name="piece"></param>
-    /// <param name="destination"></param>
-    public void playerChoseValidSquare(BoardPiece piece, BoardPosition destination)
-    {
-        piece.move(board.getSquare(destination));
     }
 
     /// <summary>
     /// Execute a board move, moving the piece, removing targeted pieces, and transforming the gamepiece.
+    /// TODO: Let the gamerules handle this.
     /// </summary>
     /// <param name="move"></param>
     public void executeMove(BoardMove move)
@@ -72,7 +60,7 @@ public class GameManager : MonoBehaviour {
         //Byebye
         foreach(BoardPiece byebyePiece in move.destroyedPieces)
         {
-            Destroy(byebyePiece.gameObject);
+            DestroyImmediate(byebyePiece.gameObject);
         }
 
         //TODO: Transform
@@ -82,15 +70,39 @@ public class GameManager : MonoBehaviour {
 
     }
 
+    public void resetGame()
+    {
+        board.wipe();
+        gameRules.setUpBoard(board, players);
+    }
+
     /// <summary>
     /// Passes the current 'playing' player to the next in line, ie. at the end of a move.
     /// Also, calls startTurn on the new player.
     /// </summary>
     public void nextPlayerTurn()
     {
+        //TODO: Debugging
+        //board.wipe();
+        //End Debugging
+
         int nextTurnIndex = (players.IndexOf(currentTurnPlayer) + 1) % players.Count;
         currentTurnPlayer = players[nextTurnIndex];
-        currentTurnPlayer.beginTurn(gameRules.getValidMoves(board));  //ISSUE
+
+        //TODO: Debugging
+        //if(nextTurnIndex == 0) board.wipe();
+        //End Debugging
+
+        List<BoardMove> validMoves = gameRules.getValidMoves(board, currentTurnPlayer);
+        if(validMoves.Count <= 0) {
+            gameRules.setUpBoard(board, players);
+            validMoves = gameRules.getValidMoves(board, currentTurnPlayer);
+        }
+        
+
+        if(validMoves.Count > 0) {
+            currentTurnPlayer.beginTurn(validMoves);
+        }
     }
 
 

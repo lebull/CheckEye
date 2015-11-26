@@ -22,12 +22,14 @@ namespace CheckEye.Board {
             }
         }
 
-
-      
-
         public static BoardPosition operator +(BoardPosition first, BoardPosition second)
         {
             return new BoardPosition(first.horizontal + second.horizontal, first.vertical + second.vertical);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}",horizontal, vertical);
         }
     }
 }

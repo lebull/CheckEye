@@ -11,12 +11,19 @@ namespace CheckEye.Board {
         public Board board;
         public BoardSquare boardSquare;
         public BoardPosition boardPosition { get { return boardSquare.boardPosition; } }
-        public GameRules.Player owner;
+        public GamePlayer owner;
+
+        public enum BoardPieceColors
+        {
+            RED,
+            BLACK
+        }
+        public BoardPieceColors color;
 
         //Todo: To checker piece subclass
         public bool kinged;
 
-        public static void CreateBoardPiece(Board board, GameObject boardPiecePrefab, BoardSquare boardSquare, GameRules.Player owner)
+        public static void CreateBoardPiece(Board board, GameObject boardPiecePrefab, BoardSquare boardSquare, GamePlayer owner, BoardPieceColors color)
         {
             if (boardPiecePrefab.GetComponent<BoardPiece>() == null)
             {
@@ -26,18 +33,15 @@ namespace CheckEye.Board {
             GameObject newPiece = Instantiate(boardPiecePrefab);
 
             newPiece.transform.parent = boardSquare.transform;
-            newPiece.transform.localScale = (boardPiecePrefab.transform.localScale * boardSquare.transform.lossyScale.x)/2;
+            newPiece.transform.localScale = Vector3.Scale(newPiece.transform.localScale, board.transform.localScale);
 
             BoardPiece newBoardPiece = newPiece.GetComponent<BoardPiece>();
 
             newBoardPiece.owner = owner;
             newBoardPiece.board = board;
+            newBoardPiece.color = color;
 
             newBoardPiece.move(boardSquare);
-            /*
-            boardSquare.gamePiece = newPiece.GetComponent<BoardPiece>();
-            boardSquare.addGamePiece(newPiece.GetComponent<BoardPiece>());
-            */
         }
 
         public void move(BoardSquare destination)
